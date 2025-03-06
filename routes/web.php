@@ -40,7 +40,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/', function () { return view('admin.dashboard'); })->name('admin.dashboard'); // Главная страница админки
     Route::resource('products', AdminProductController::class)->except(['show', 'create', 'edit']);
-    // Route::resource('orders', AdminOrderController::class)->only(['index', 'show', 'update']);
+    Route::resource('orders', AdminOrderController::class)->only(['index', 'show', 'update']);
 });
 
 // Маршруты, созданные Breeze (аутентификация)
