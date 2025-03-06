@@ -37,7 +37,7 @@ class ProductController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View
+    public function create(): View  // для  api не надо
     {
         return view('admin.products.create');
     }
@@ -82,6 +82,8 @@ class ProductController extends Controller
             'image' => 'nullable|image', // 
             'type' => 'required|in:pizza,drink',
         ]);    
+
+        // dd('test-update');
  
         $product->update($validatedData);
     
@@ -97,12 +99,14 @@ class ProductController extends Controller
     public function destroy(Product $product): JsonResponse // Изменено
     {
         //Удаляем изображение
-        if($product->image){
-            Storage::delete('public/'.$product->image); //Используем Storage
-        }
+        // if($product->image){
+        //     Storage::delete('public/'.$product->image); //Используем Storage
+        // }
         $product->delete();
-         return response()->json([
+        // dd('test');
+
+        return response()->json([
            'message' => 'Товар успешно удален'
-         ], 204); 
+        ]); 
     }
 }
