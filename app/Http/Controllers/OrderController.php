@@ -17,9 +17,32 @@ use Illuminate\Support\Facades\DB; //Для транзакций
 class OrderController extends Controller
 {
     /**
+     * Display a listing of the orders.
+     */
+    public function index(): JsonResponse
+    {
+        $orders = Order::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get(); // Получаем заказы текущего пользователя
+        // return view('orders.index', compact('orders'));
+        return response()->json($orders);
+    }
+
+    /**
+     * Display the specified order.
+     */
+    public function show(int $id): JsonResponse
+    {
+        $order = Order::findOrFail($id); //findOrFail - вызовет исключение, если не найдено
+        if($order->user_id != Auth::id() ){
+          abort(403); //Если заказ не принадлежит текущему пользователю
+        }
+        // return view('orders.show', compact('order'));
+        return response()->json($order);
+    }
+
+    /**
      * Store a newly created order in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'phone' => 'required',
@@ -28,11 +51,17 @@ class OrderController extends Controller
             'delivery_time' => 'nullable|date',
         ]);
 
+        // dd('test order.store-1');
+
        //Получаем данные из сессии
         $cart = Cart::where('user_id', Auth::id())->first();
+        // dd($cart);  // null
         if (!$cart || $cart->items->isEmpty()) {
-          return redirect()->route('cart.index')->withErrors('Ваша корзина пуста!');
+            return response()->json([
+                'message' => 'Cart is empty!',
+             ]); 
         }
+        // dd('test order.store-2');
 
         DB::beginTransaction(); //Начинаем транзакцию
         try {
@@ -68,35 +97,18 @@ class OrderController extends Controller
             $cart->delete(); //Удаляем саму корзину
 
             DB::commit(); //Фиксируем транзакцию
-            return redirect()->route('orders.index')->with('success', 'Заказ успешно создан!');
+            return response()->json([
+                'message' => 'Заказ успешно создан!'
+             ]);
+
+
         }
         catch (\Exception $e){
             DB::rollBack(); //Откатываем транзакцию
-            // Обработка ошибок, например, логирование
-            return back()->withErrors('Ошибка при создании заказа.');
+            // Обработка ошибок
+            return response()->json([
+                'message' => 'Ошибка при создании заказа.'
+             ]);
         }
-    }
-
-    /**
-     * Display a listing of the orders.
-     */
-    public function index(): JsonResponse
-    {
-        $orders = Order::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get(); // Получаем заказы текущего пользователя
-        // return view('orders.index', compact('orders'));
-        return response()->json($orders);
-    }
-
-    /**
-     * Display the specified order.
-     */
-    public function show(int $id): JsonResponse
-    {
-        $order = Order::findOrFail($id); //findOrFail - вызовет исключение, если не найдено
-        if($order->user_id != Auth::id() ){
-          abort(403); //Если заказ не принадлежит текущему пользователю
-        }
-        // return view('orders.show', compact('order'));
-        return response()->json($order);
     }
 }
