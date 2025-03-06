@@ -6,6 +6,8 @@ use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use Illuminate\Database\Eloquent\Casts\Json;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -78,21 +80,23 @@ class OrderController extends Controller
     /**
      * Display a listing of the orders.
      */
-    public function index(): View
+    public function index(): JsonResponse
     {
         $orders = Order::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get(); // Получаем заказы текущего пользователя
-        return view('orders.index', compact('orders'));
+        // return view('orders.index', compact('orders'));
+        return response()->json($orders);
     }
 
     /**
      * Display the specified order.
      */
-    public function show(int $id): View
+    public function show(int $id): JsonResponse
     {
         $order = Order::findOrFail($id); //findOrFail - вызовет исключение, если не найдено
         if($order->user_id != Auth::id() ){
           abort(403); //Если заказ не принадлежит текущему пользователю
         }
-        return view('orders.show', compact('order'));
+        // return view('orders.show', compact('order'));
+        return response()->json($order);
     }
 }
