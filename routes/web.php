@@ -39,7 +39,7 @@ Route::middleware('auth')->group(function () {
 // Админ-панель (требуется аутентификация и роль администратора)
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/', function () { return view('admin.dashboard'); })->name('admin.dashboard'); // Главная страница админки
-    Route::resource('products', AdminProductController::class)->except(['show']);
+    Route::resource('products', AdminProductController::class)->except(['show', 'create', 'edit']);
     // Route::resource('orders', AdminOrderController::class)->only(['index', 'show', 'update']);
 });
 
