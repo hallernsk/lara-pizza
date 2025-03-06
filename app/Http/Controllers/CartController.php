@@ -13,6 +13,24 @@ use Illuminate\Support\Facades\Auth;
 class CartController extends Controller
 {
     /**
+     * Display the cart.
+     */
+    public function index(): JsonResponse
+    {
+       $cart = null; // Инициализируем переменную
+
+       if (Auth::check()) {
+          // Если пользователь авторизован, получаем его корзину
+         $cart = Cart::with('items.product')->where('user_id', Auth::id())->first(); //Eager Loading
+       }
+       else {
+          //Временно для неавторизованных
+          $cart = null; //Позже сменить на сессии
+       }
+       return response()->json($cart);
+    }
+    
+    /**
      * Add a product to the cart.
      */
     public function add(Request $request): JsonResponse
@@ -51,10 +69,10 @@ class CartController extends Controller
             }
         }
         if ($product->type === 'pizza' && ($pizzaCount + $quantity) > 10) {
-            return response()->json(['message' => 'Нельзя добавить больше 10 пицц.'], 400);
+            return response()->json(['message' => 'Нельзя добавить больше 10 пицц!'], 400);
         }
         if ($product->type === 'drink' && ($drinkCount + $quantity) > 20) {
-          return response()->json(['message' => 'Нельзя добавить больше 20 напитков.'], 400);
+          return response()->json(['message' => 'Нельзя добавить больше 20 напитков!'], 400);
         }
         //
 
@@ -71,25 +89,8 @@ class CartController extends Controller
             ]);
         }
 
-        return response()->json(['message' => 'Товар добавлен в корзину!'], 200); // Успех
+        return response()->json(['message' => 'Товар добавлен в корзину!'], 200); 
     }
-      /**
-     * Display the cart.
-     */
-     public function index(): JsonResponse
-     {
-        $cart = null; // Инициализируем переменную
-
-        if (Auth::check()) {
-           // Если пользователь авторизован, получаем его корзину
-          $cart = Cart::with('items.product')->where('user_id', Auth::id())->first(); //Eager Loading
-        }
-        else {
-           //Временно для неавторизованных
-           $cart = null; //Позже сменить на сессии
-        }
-        return response()->json($cart);
-     }
 
     /**
      * Remove the specified resource from storage.
