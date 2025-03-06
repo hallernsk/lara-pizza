@@ -4,20 +4,26 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage; //Для Storage
+use Illuminate\Support\Js;
 
 class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): View
+    public function index(Request $request): JsonResponse
     {
         $products = Product::all();
-        return view('products.index', compact('products'));
+        // dd($request);
+        // dd($products);
+        // return ($products);  // так нельзя!
+        return response()->json($products);
+        // return view('products.index', compact('products'));
 
         // if ($request->is('admin/*')) {
         //     return view('admin.products.index', compact('products')); // Админка
@@ -39,82 +45,64 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): JsonResponse 
     {
         $validatedData = $request->validate([
             'name' => 'required|max:255',
             'description' => 'nullable',
             'price' => 'required|numeric',
-            'image' => 'nullable|image',
             'type' => 'required|in:pizza,drink',
-        ]);
+        ]); 
 
-        if ($request->hasFile('image')) {
-           $path = $request->file('image')->store('public/products'); // Сохраняем в storage/app/public/products
-           $validatedData['image'] = str_replace('public/', '', $path); // Убираем 'public/' из пути для корректного отображения
-        }
-
-        Product::create($validatedData);
-        return redirect('/admin/products')->with('success', 'Товар успешно создан');
+        $product = Product::create($validatedData);
+    
+        return response()->json([
+            'message' => 'Товар успешно создан!',
+            'product' => $product,
+        ], 201); // статус 201 Created
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Product $product): View
+    public function show(Product $product): JsonResponse
     {
-       //Этот метод, возможно, не нужен
-        // return view('admin.products.show', compact('product'));
-        // dd('show');
-        // dd($product);
-        return view('products.show', compact('product'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product): View
-    {
-        return view('admin.products.edit', compact('product'));
+        return response()->json($product);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product): RedirectResponse
+    public function update(Request $request, Product $product): JsonResponse
     {
         $validatedData = $request->validate([
             'name' => 'required|max:255',
             'description' => 'nullable',
             'price' => 'required|numeric',
-            'image' => 'nullable|image',
+            'image' => 'nullable|image', // 
             'type' => 'required|in:pizza,drink',
-        ]);
-
-        if ($request->hasFile('image')) {
-            // Удаляем старое изображение, если оно есть
-            if ($product->image) {
-                Storage::delete('public/' . $product->image);
-            }
-            $path = $request->file('image')->store('public/products');
-            $validatedData['image'] = str_replace('public/', '', $path);
-        }
-
-        $product->update($validatedData); // Обновляем товар
-
-        return redirect('/admin/products')->with('success', 'Товар успешно обновлен!');
+        ]);    
+ 
+        $product->update($validatedData);
+    
+        return response()->json([
+            'message' => 'Товар успешно обновлен!',
+            'product' => $product,
+        ]); //  200 
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product): RedirectResponse
+    public function destroy(Product $product): JsonResponse // Изменено
     {
         //Удаляем изображение
         if($product->image){
-           Storage::delete('public/'.$product->image); //Используем Storage
+            Storage::delete('public/'.$product->image); //Используем Storage
         }
         $product->delete();
-        return redirect('/admin/products')->with('success', 'Товар успешно удален');
+         return response()->json([
+           'message' => 'Товар успешно удален'
+         ], 204); 
     }
 }
