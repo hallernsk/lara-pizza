@@ -5,17 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
+
 
 class CartController extends Controller
 {
     /**
      * Add a product to the cart.
      */
-    public function add(Request $request): RedirectResponse
+    public function add(Request $request): JsonResponse
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
@@ -26,9 +26,15 @@ class CartController extends Controller
         $quantity = $request->input('quantity', 1); // Количество, по умолчанию 1
         $product = Product::findOrFail($productId);
 
-        // 1. Получаем корзину пользователя (или создаём новую)
-        // $cart = Cart::firstOrCreate(['user_id' => auth()->id()]);
-        $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+        // 1. Получаем корзину пользователя (или создаём новую, если её нет)
+        $cart = null;
+        if (Auth::check()) {
+            $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+        }
+        else{
+            //пока функционал неавторизованных пользователей не делаем
+            return response()->json(['message' => 'Authentication required'], 401);
+        }
 
         // 2. Проверяем, есть ли уже такой товар в корзине
         $cartItem = $cart->items()->where('product_id', $productId)->first();
@@ -45,10 +51,10 @@ class CartController extends Controller
             }
         }
         if ($product->type === 'pizza' && ($pizzaCount + $quantity) > 10) {
-            return back()->withErrors(['message' => 'Нельзя добавить больше 10 пицц']);
+            return response()->json(['message' => 'Нельзя добавить больше 10 пицц.'], 400);
         }
         if ($product->type === 'drink' && ($drinkCount + $quantity) > 20) {
-            return back()->withErrors(['message' => 'Нельзя добавить больше 20 напитков']);
+          return response()->json(['message' => 'Нельзя добавить больше 20 напитков.'], 400);
         }
         //
 
@@ -65,91 +71,102 @@ class CartController extends Controller
             ]);
         }
 
-        return back()->with('success', 'Товар добавлен в корзину!');
+        return response()->json(['message' => 'Товар добавлен в корзину!'], 200); // Успех
     }
       /**
      * Display the cart.
      */
-    public function index(): View
-    {
+     public function index(): JsonResponse
+     {
         $cart = null; // Инициализируем переменную
 
         if (Auth::check()) {
            // Если пользователь авторизован, получаем его корзину
-        //   $cart = Cart::where('user_id', auth()->id())->first();
-          $cart = Cart::where('user_id', Auth::id())->first();
+          $cart = Cart::with('items.product')->where('user_id', Auth::id())->first(); //Eager Loading
         }
         else {
-          //Временно для неавторизованных
-           $cart = null;
+           //Временно для неавторизованных
+           $cart = null; //Позже сменить на сессии
         }
-
-        return view('cart.index', compact('cart'));
-    }
+        return response()->json($cart);
+     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function remove(Request $request)
+    public function remove(Request $request): JsonResponse
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
         ]);
-    
+
         $productId = $request->input('product_id');
-    
+
         // 1. Получаем корзину пользователя
-        // $cart = Cart::where('user_id', auth()->id())->first();
-        $cart = Cart::where('user_id', Auth::id())->first();
-    
+         $cart = null;
+        if (Auth::check()) {
+           // Если пользователь авторизован, получаем его корзину
+            $cart = Cart::where('user_id', Auth::id())->first();
+        }
+        else{
+          //пока функционал неавторизованных не делаем
+          return response()->json(['message' => 'Authentication required'], 401);
+        }
+
         // 2. Если корзина есть, удаляем элемент
         if ($cart) {
             $cart->items()->where('product_id', $productId)->delete();
+             return response()->json(['message' => 'Товар удалён из корзины.'], 200);
         }
-    
-        return back()->with('success', 'Товар удалён из корзины.');
+        return response()->json(['message' => 'Корзина не найдена.'], 404);
     }
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(Request $request): JsonResponse
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
         ]);
-    
+
         $productId = $request->input('product_id');
         $quantity = $request->input('quantity');
-    
-        // $cart = Cart::where('user_id', auth()->id())->first();
-        $cart = Cart::where('user_id', Auth::id())->first();
-    
+        // 1. Получаем корзину пользователя
+         $cart = null;
+        if (Auth::check()) {
+           // Если пользователь авторизован, получаем его корзину
+          $cart = Cart::where('user_id', Auth::id())->first();
+        }
+        else{
+         //пока функционал неавторизованных не делаем
+          return response()->json(['message' => 'Authentication required'], 401); // 401 Unauthorized
+        }
+
         if ($cart) {
              //Проверяем лимиты
-             $product = Product::findOrFail($productId);
-             $pizzaCount = 0;
-             $drinkCount = 0;
-    
+            $product = Product::findOrFail($productId);
+            $pizzaCount = 0;
+            $drinkCount = 0;
+
             foreach ($cart->items as $item) {
                if ($item->product->type === 'pizza') {
                   $pizzaCount += ($item->product_id == $productId) ? $quantity : $item->quantity;
                }
                else {
-                  $drinkCount += ($item->product_id == $productId) ? $quantity : $item->quantity;
+                 $drinkCount += ($item->product_id == $productId) ? $quantity : $item->quantity;
                }
-            }
-    
-           if ($product->type === 'pizza' && $pizzaCount > 10) {
-              return back()->withErrors(['message' => 'Нельзя добавить больше 10 пицц']);
-           }
-            if ($product->type === 'drink' && $drinkCount > 20) {
-                return back()->withErrors(['message' => 'Нельзя добавить больше 20 напитков']);
-           }
-            $cart->items()->where('product_id', $productId)->update(['quantity' => $quantity]);
-        }
-    
-        return back()->with('success', 'Количество товара обновлено.');
-    }
+             }
 
+            if ($product->type === 'pizza' && $pizzaCount > 10) {
+               return response()->json(['message' => 'Нельзя добавить больше 10 пицц'], 400);
+            }
+            if ($product->type === 'drink' && $drinkCount > 20) {
+              return response()->json(['message' => 'Нельзя добавить больше 20 напитков'], 400);
+            }
+            $cart->items()->where('product_id', $productId)->update(['quantity' => $quantity]);
+            return response()->json(['message' => 'Количество обновлено'], 200);
+        }
+        return response()->json(['message' => 'Корзина не найдена.'], 404);
+    }
 }
