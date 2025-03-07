@@ -36,18 +36,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
 });
 
-// Админ-панель (требуется аутентификация и роль администратора)
+// Админ-раздел (требуется аутентификация и права администратора is_admin = 1)
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::get('/', function () { return view('admin.dashboard'); })->name('admin.dashboard'); // Главная страница админки
+    // Route::get('/', function () { return view('admin.dashboard'); })->name('admin.dashboard'); // Главная страница админки
     Route::resource('products', AdminProductController::class)->except(['show', 'create', 'edit']);
     Route::resource('orders', AdminOrderController::class)->only(['index', 'show', 'update']);
 });
 
 // Маршруты, созданные Breeze (аутентификация)
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+// Route::middleware('auth')->group(function () {
+//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// });
 
-require __DIR__.'/auth.php';
+// require __DIR__.'/auth.php';

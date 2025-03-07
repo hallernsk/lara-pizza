@@ -17,17 +17,17 @@ class CartController extends Controller
      */
     public function index(): JsonResponse
     {
-       $cart = null; // Инициализируем переменную
+        $cart = null; // Инициализируем переменную
 
-       if (Auth::check()) {
-          // Если пользователь авторизован, получаем его корзину
-         $cart = Cart::with('items.product')->where('user_id', Auth::id())->first(); //Eager Loading
-       }
-       else {
-          //Временно для неавторизованных
-          $cart = null; //Позже сменить на сессии
-       }
-       return response()->json($cart);
+        if (Auth::check()) {
+            // Если пользователь авторизован, получаем его корзину
+            $cart = Cart::with('items.product')->where('user_id', Auth::id())->first(); //Eager Loading
+        }
+        else {
+            //для неавторизованных
+            $cart = null; 
+        }
+        return response()->json($cart);
     }
     
     /**
@@ -50,7 +50,7 @@ class CartController extends Controller
             $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
         }
         else{
-            //пока функционал неавторизованных пользователей не делаем
+            // неавторизованных не пускаем
             return response()->json(['message' => 'Authentication required'], 401);
         }
 
@@ -133,7 +133,7 @@ class CartController extends Controller
 
         $productId = $request->input('product_id');
         $quantity = $request->input('quantity');
-        // 1. Получаем корзину пользователя
+        
          $cart = null;
         if (Auth::check()) {
            // Если пользователь авторизован, получаем его корзину

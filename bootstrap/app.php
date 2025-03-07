@@ -17,13 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => AdminMiddleware::class, // регистрация middleware
           ]); //
 
-          $middleware->validateCsrfTokens(except: [ 
-            '*',
+        //   $middleware->validateCsrfTokens(except: [ 
+        //     '*',
             // 'admin/products/*',  // маршруты, связанные с товарами в админке
             // 'cart/*',          
             // 'orders',
             // 'orders/*'          
-              ]); 
+            //   ]); 
 
     })
     ->withExceptions(function (Exceptions $exceptions) {

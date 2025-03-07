@@ -7,8 +7,9 @@ use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Storage; //Для Storage
+use Illuminate\Support\Facades\Storage; 
 use Illuminate\Support\Js;
 
 class ProductController extends Controller
@@ -18,6 +19,7 @@ class ProductController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
+        dd('test-index');
         $products = Product::all();
         // dd($request);
         // dd($products);
@@ -47,6 +49,7 @@ class ProductController extends Controller
      */
     public function store(Request $request): JsonResponse 
     {
+        dd('test-store');
         $validatedData = $request->validate([
             'name' => 'required|max:255',
             'description' => 'nullable',
@@ -96,14 +99,15 @@ class ProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product): JsonResponse // Изменено
+    public function destroy(Product $product): JsonResponse 
     {
-        //Удаляем изображение
-        // if($product->image){
-        //     Storage::delete('public/'.$product->image); //Используем Storage
-        // }
+        dd('test-destroy');
+        if (!Auth::check()) {
+            return response()->json([
+                'message' => 'Только для администраторов'
+             ]); 
+        }
         $product->delete();
-        // dd('test');
 
         return response()->json([
            'message' => 'Товар успешно удален'
