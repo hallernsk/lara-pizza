@@ -19,29 +19,9 @@ class ProductController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        dd('test-index');
         $products = Product::all();
-        // dd($request);
-        // dd($products);
-        // return ($products);  // так нельзя!
+
         return response()->json($products);
-        // return view('products.index', compact('products'));
-
-        // if ($request->is('admin/*')) {
-        //     return view('admin.products.index', compact('products')); // Админка
-        // } else {
-        //     return view('products.index', compact('products')); // Главная страница
-        // }
-
-
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): View  // для  api не надо
-    {
-        return view('admin.products.create');
     }
 
     /**
@@ -49,7 +29,7 @@ class ProductController extends Controller
      */
     public function store(Request $request): JsonResponse 
     {
-        dd('test-store');
+        // dd('test-store');
         $validatedData = $request->validate([
             'name' => 'required|max:255',
             'description' => 'nullable',
@@ -82,7 +62,7 @@ class ProductController extends Controller
             'name' => 'required|max:255',
             'description' => 'nullable',
             'price' => 'required|numeric',
-            'image' => 'nullable|image', // 
+            // 'image' => 'nullable|image', // 
             'type' => 'required|in:pizza,drink',
         ]);    
 
@@ -101,16 +81,16 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): JsonResponse 
     {
-        dd('test-destroy');
+        // dd('test-destroy');
         if (!Auth::check()) {
             return response()->json([
-                'message' => 'Только для администраторов'
+                'message' => 'For administrators only!'
              ]); 
         }
         $product->delete();
 
         return response()->json([
-           'message' => 'Товар успешно удален'
+           'message' => 'The product has been successfully removed.'
         ]); 
     }
 }

@@ -21,7 +21,7 @@ class OrderController extends Controller
      */
     public function index(): JsonResponse
     {
-        dd('test order.index');
+        // dd(Auth::id()); // ID текущего пользователя
         $orders = Order::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get(); // Получаем заказы текущего пользователя
         // return view('orders.index', compact('orders'));
         return response()->json($orders);
@@ -54,7 +54,6 @@ class OrderController extends Controller
 
         // dd('test order.store-1');
 
-       //Получаем данные из сессии
         $cart = Cart::where('user_id', Auth::id())->first();
         // dd($cart);  // null
         if (!$cart || $cart->items->isEmpty()) {

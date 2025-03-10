@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 
 class OrderController extends Controller
@@ -15,8 +16,12 @@ class OrderController extends Controller
      */
     public function index(): JsonResponse
     {
-        $orders = Order::with('user', 'items.product')->orderBy('created_at', 'desc')->get(); // Eager loading + сортировка
-        return response()->json($orders);
+        // dd('test-admin-index');
+        if (!Auth::user()->is_admin) {  // Проверка на админа
+            abort(403, 'Unauthorized action.'); //
+         }
+          $orders = Order::with('user', 'items.product')->orderBy('created_at', 'desc')->get(); // Eager loading + сортировка
+          return response()->json($orders);
     }
 
     /**

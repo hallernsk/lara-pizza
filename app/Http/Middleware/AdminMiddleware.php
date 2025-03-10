@@ -18,9 +18,7 @@ class AdminMiddleware
     {
         // if (!auth()->check() || !auth()->user()->is_admin) {
         if (!Auth::check() || !Auth::user()->is_admin) {
-        // if (false) {
-            abort(403); // Или редирект на страницу входа/ошибки
-            // return redirect('/');
+            abort(403, 'Unauthorized action.');
         }
         return $next($request);
     }

@@ -19,29 +19,29 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Главная страница (список товаров) - доступна всем
-Route::get('/', [AdminProductController::class, 'index'])->name('products.index');
-Route::get('/products', [AdminProductController::class, 'index']); // Можно удалить, если не нужен отдельный URL
-Route::get('/products/{product}', [AdminProductController::class, 'show'])->name('products.show');
+// Route::get('/', [AdminProductController::class, 'index'])->name('products.index');
+// Route::get('/products', [AdminProductController::class, 'index']); // Можно удалить, если не нужен отдельный URL
+// Route::get('/products/{product}', [AdminProductController::class, 'show'])->name('products.show');
 
 // Корзина
-Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
-Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
-Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+// Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+// Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+// Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+// Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 
 // Заказы (требуется аутентификация)
-Route::middleware('auth')->group(function () {
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
-    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
-});
+// Route::middleware('auth')->group(function () {
+//     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+//     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+//     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+// });
 
 // Админ-раздел (требуется аутентификация и права администратора is_admin = 1)
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    // Route::get('/', function () { return view('admin.dashboard'); })->name('admin.dashboard'); // Главная страница админки
-    Route::resource('products', AdminProductController::class)->except(['show', 'create', 'edit']);
-    Route::resource('orders', AdminOrderController::class)->only(['index', 'show', 'update']);
-});
+// Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+//     // Route::get('/', function () { return view('admin.dashboard'); })->name('admin.dashboard'); // Главная страница админки
+//     Route::resource('products', AdminProductController::class)->except(['show', 'create', 'edit']);
+//     Route::resource('orders', AdminOrderController::class)->only(['index', 'show', 'update']);
+// });
 
 // Маршруты, созданные Breeze (аутентификация)
 // Route::middleware('auth')->group(function () {
