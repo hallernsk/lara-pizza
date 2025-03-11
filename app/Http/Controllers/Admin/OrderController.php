@@ -7,7 +7,6 @@ use App\Models\Order;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 
 class OrderController extends Controller
 {
@@ -16,7 +15,6 @@ class OrderController extends Controller
      */
     public function index(): JsonResponse
     {
-        // dd('test-admin-index');
         if (!Auth::user()->is_admin) {  // Проверка на админа
             abort(403, 'Unauthorized action.'); //
          }
