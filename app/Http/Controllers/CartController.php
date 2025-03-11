@@ -21,7 +21,7 @@ class CartController extends Controller
 
         if (Auth::check()) {
             // Если пользователь авторизован, получаем его корзину
-            $cart = Cart::with('items.product')->where('user_id', Auth::id())->first(); //Eager Loading
+            $cart = Cart::with('items.product')->where('user_id', Auth::id())->first(); 
         }
         else {
             //для неавторизованных
@@ -166,7 +166,7 @@ class CartController extends Controller
               return response()->json(['message' => 'Нельзя добавить больше 20 напитков'], 400);
             }
             $cart->items()->where('product_id', $productId)->update(['quantity' => $quantity]);
-            return response()->json(['message' => 'Количество обновлено'], 200);
+            return response()->json(['message' => 'Количество товара обновлено'], 200);
         }
         return response()->json(['message' => 'Корзина не найдена.'], 404);
     }

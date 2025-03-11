@@ -88,7 +88,7 @@ class OrderController extends Controller
                     'order_id' => $order->id,
                     'product_id' => $item->product_id,
                     'quantity' => $item->quantity,
-                    'price' => $product->price, // !!! Сохраняем цену на момент заказа
+                    'price' => $product->price, // Сохраняем цену на момент заказа
                 ]);
             }
 
