@@ -38,7 +38,8 @@ Route::get('/', [AdminProductController::class, 'index'])->name('products.index'
 Route::get('/products', [AdminProductController::class, 'index']); //дублирует
 Route::get('/products/{product}', [AdminProductController::class, 'show'])->name('products.show');
 
-Route::get('/cart', [CartController::class, 'index'])->name('cart.show');
+// Корзина
+Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
 Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
 Route::patch('/cart/{product}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/cart/{product}', [CartController::class, 'destroy'])->name('cart.destroy');

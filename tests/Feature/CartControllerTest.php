@@ -25,6 +25,19 @@ class CartControllerTest extends TestCase
         $this->token = JWTAuth::fromUser($this->user);
     }
 
+
+    public function test_user_can_get_cart()
+    {
+        $product = Product::factory()->create(['type' => 'drink']);
+        $cart = Cart::create(['user_id' => $this->user->id]);
+
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson('/api/cart');
+
+        $response->assertStatus(200);
+    }
+
     public function test_user_can_add_product_to_cart()
     {
         $product = Product::factory()->create(['type' => 'pizza']);
