@@ -38,7 +38,7 @@ GET:api/cart/   - (SHOW)
 
 POST:api/cart/   - (STORE)  
 
-PATCH:api/cart/{i}   - (UPDATE)  
+PATCH:api/cart/{i}   - (UPDATE, изменить количество товара)  
 
 DELETE:api/cart/{i}   - (DESTROY)
 
@@ -47,7 +47,7 @@ GET:api/orders/   - (INDEX)
 
 GET:api/orders/{i}   - (SHOW)  
 
-POST:api/orders/   - (UPDATE)  
+POST:api/orders/   - (STORE, создать заказ)  
 
 
 #### Заказы (для админа):
@@ -55,7 +55,7 @@ GET:api/admin/orders/   - (INDEX)
 
 GET:api/admin/orders/{i}   - (SHOW)  
 
-PUT:api/admin/orders/   - (UPDATE)  
+PUT:api/admin/orders/   - (UPDATE, изменить статус заказа)  
 
 
 
