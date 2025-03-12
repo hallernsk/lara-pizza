@@ -31,7 +31,7 @@ class CartControllerTest extends TestCase
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
-        ])->postJson('/api/cart/add', [
+        ])->postJson('/api/cart', [
             'product_id' => $product->id,
             'quantity' => 2
         ]);
@@ -51,9 +51,7 @@ class CartControllerTest extends TestCase
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
-        ])->postJson('/api/cart/remove', [
-            'product_id' => $product->id
-        ]);
+        ])->deleteJson('/api/cart/{$product->id}');
 
         $response->assertStatus(200)
             ->assertJson(['message' => 'Товар удалён из корзины.']);
@@ -70,8 +68,7 @@ class CartControllerTest extends TestCase
 
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->token,
-        ])->postJson('/api/cart/update', [
-            'product_id' => $product->id,
+        ])->patchJson("/api/cart/{$product->id}", [
             'quantity' => 7
         ]);
 

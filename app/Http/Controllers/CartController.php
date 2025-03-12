@@ -15,7 +15,7 @@ class CartController extends Controller
     /**
      * Display the cart.
      */
-    public function index(): JsonResponse
+    public function show(): JsonResponse
     {
         $cart = null; // Инициализируем переменную
 
@@ -37,11 +37,11 @@ class CartController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'quantity' => 'nullable|integer|min:1|max:100', //При необходимости, добавить валидацию
+            'quantity' => 'nullable|integer|min:1|max:100', 
         ]);
 
         $productId = $request->input('product_id');
-        $quantity = $request->input('quantity', 1); // Количество, по умолчанию 1
+        $quantity = $request->input('quantity', 1); // Количество по умолчанию = 1
         $product = Product::findOrFail($productId);
 
         // 1. Получаем корзину пользователя (или создаём новую, если её нет)
@@ -95,79 +95,54 @@ class CartController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function remove(Request $request): JsonResponse
+    public function destroy(Request $request, $productId): JsonResponse
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-        ]);
+        $cart = Cart::where('user_id', Auth::id())->first();
 
-        $productId = $request->input('product_id');
-
-        // 1. Получаем корзину пользователя
-         $cart = null;
-        if (Auth::check()) {
-           // Если пользователь авторизован, получаем его корзину
-            $cart = Cart::where('user_id', Auth::id())->first();
-        }
-        else{
-          //пока функционал неавторизованных не делаем
-          return response()->json(['message' => 'Authentication required'], 401);
-        }
-
-        // 2. Если корзина есть, удаляем элемент
         if ($cart) {
             $cart->items()->where('product_id', $productId)->delete();
-             return response()->json(['message' => 'Товар удалён из корзины.'], 200);
+            return response()->json(['message' => 'Товар удалён из корзины.'], 200);
         }
+    
         return response()->json(['message' => 'Корзина не найдена.'], 404);
     }
+
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request): JsonResponse
+    public function update(Request $request, $productId): JsonResponse 
     {
         $request->validate([
-            'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
         ]);
-
-        $productId = $request->input('product_id');
+    
         $quantity = $request->input('quantity');
-        
-         $cart = null;
-        if (Auth::check()) {
-           // Если пользователь авторизован, получаем его корзину
-          $cart = Cart::where('user_id', Auth::id())->first();
-        }
-        else{
-         //пока функционал неавторизованных не делаем
-          return response()->json(['message' => 'Authentication required'], 401); // 401 Unauthorized
-        }
-
+        $cart = Cart::where('user_id', Auth::id())->first();
         if ($cart) {
              //Проверяем лимиты
             $product = Product::findOrFail($productId);
             $pizzaCount = 0;
             $drinkCount = 0;
-
+    
             foreach ($cart->items as $item) {
-               if ($item->product->type === 'pizza') {
-                  $pizzaCount += ($item->product_id == $productId) ? $quantity : $item->quantity;
+              if ($item->product->type === 'pizza') {
+                   $pizzaCount += ($item->product_id == $productId) ? $quantity : $item->quantity;
                }
                else {
-                 $drinkCount += ($item->product_id == $productId) ? $quantity : $item->quantity;
-               }
-             }
-
+                   $drinkCount += ($item->product_id == $productId) ? $quantity : $item->quantity;
+              }
+            }
+    
             if ($product->type === 'pizza' && $pizzaCount > 10) {
                return response()->json(['message' => 'Нельзя добавить больше 10 пицц'], 400);
             }
             if ($product->type === 'drink' && $drinkCount > 20) {
-              return response()->json(['message' => 'Нельзя добавить больше 20 напитков'], 400);
+                return response()->json(['message' => 'Нельзя добавить больше 20 напитков'], 400);
             }
-            $cart->items()->where('product_id', $productId)->update(['quantity' => $quantity]);
-            return response()->json(['message' => 'Количество товара обновлено'], 200);
+             $cart->items()->where('product_id', $productId)->update(['quantity' => $quantity]); 
+             return response()->json(['message' => 'Количество товара обновлено'], 200);
         }
+    
         return response()->json(['message' => 'Корзина не найдена.'], 404);
     }
 }

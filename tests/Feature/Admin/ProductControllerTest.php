@@ -41,7 +41,7 @@ class ProductControllerTest extends TestCase
             ->assertJsonCount(5);
     }
 
-    public function test_admin_get_access_product_show(): void
+    public function test_admin_get_product_show(): void
     {
         $product = Product::factory()->create();
         $admin = User::factory()->create(['is_admin' => true]);

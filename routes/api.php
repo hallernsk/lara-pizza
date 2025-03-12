@@ -37,16 +37,18 @@ Route::group([
 Route::get('/', [AdminProductController::class, 'index'])->name('products.index');
 Route::get('/products', [AdminProductController::class, 'index']); //дублирует
 Route::get('/products/{product}', [AdminProductController::class, 'show'])->name('products.show');
-Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add'); //->middleware('auth');  // Если нужна корзина только для авторизованных
-Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
-Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
+
+Route::get('/cart', [CartController::class, 'index'])->name('cart.show');
+Route::post('/cart', [CartController::class, 'add'])->name('cart.add');
+Route::patch('/cart/{product}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/{product}', [CartController::class, 'destroy'])->name('cart.destroy');
+
 
 // Заказы (требуется аутентификация)
- Route::middleware('auth:api')->group(function () {
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
-    Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+Route::middleware('auth:api')->group(function () {
+   Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+   Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+   Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
  });
 
 // Админ-панель (требуется аутентификация и роль администратора)
