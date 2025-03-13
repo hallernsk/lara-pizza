@@ -30,11 +30,10 @@ class OrderController extends Controller
      */
     public function show(int $id): JsonResponse
     {
-        $order = Order::findOrFail($id); //findOrFail - вызовет исключение, если не найдено
+        $order = Order::findOrFail($id); 
         if($order->user_id != Auth::id() ){
           abort(403); //Если заказ не принадлежит текущему пользователю
         }
-        // return view('orders.show', compact('order'));
         return response()->json($order);
     }
 
@@ -94,9 +93,8 @@ class OrderController extends Controller
             return response()->json([
                 'message' => 'Заказ успешно создан!'
              ]);
-
-
         }
+        
         catch (\Exception $e){
             DB::rollBack(); //Откатываем транзакцию
             // Обработка ошибок

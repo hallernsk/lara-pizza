@@ -15,17 +15,21 @@ class OrderControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected User $user;
-    protected string $token;
-    protected Cart $cart;
-    protected Product $products;
+    protected $user;
+    protected $user2;
+    protected $token;
+    protected $token2;
+    protected $cart;
+    protected $products;
 
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->user = User::factory()->create();
+        $this->user2 = User::factory()->create();
         $this->token = JWTAuth::fromUser($this->user);
+        $this->token2 = JWTAuth::fromUser($this->user2);
         
         // Создаем корзину с товарами
         $this->cart = Cart::factory()->create(['user_id' => $this->user->id]);
@@ -59,8 +63,8 @@ class OrderControllerTest extends TestCase
                 ]
             ]);
     }
-
-    public function test_user_can_view_their_one_order()
+ 
+    public function test_user_can_get_their_one_order()
     {
         $order = Order::factory()->create(['user_id' => $this->user->id]);
 
@@ -73,6 +77,18 @@ class OrderControllerTest extends TestCase
                 'id' => $order->id,
                 'user_id' => $this->user->id
             ]);
+    }
+
+    public function test_user_cannot_get_non_their_one_order()
+    {
+        $order = Order::factory()->create(['user_id' => $this->user2->id]);
+
+        // Пытаемся получить заказ другого пользователя
+        $response = $this->withHeaders([
+            'Authorization' => 'Bearer ' . $this->token,
+        ])->getJson("/api/orders/{$order->id}");
+
+        $response->assertStatus(403);    
     }
 
     public function test_user_can_create_order_from_cart()
