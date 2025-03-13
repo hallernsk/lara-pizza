@@ -29,7 +29,6 @@ class ProductController extends Controller
      */
     public function store(Request $request): JsonResponse 
     {
-        // dd('test-store');
         $validatedData = $request->validate([
             'name' => 'required|max:255',
             'description' => 'nullable',
@@ -66,8 +65,6 @@ class ProductController extends Controller
             'type' => 'required|in:pizza,drink',
         ]);    
 
-        // dd('test-update');
- 
         $product->update($validatedData);
     
         return response()->json([
@@ -81,7 +78,6 @@ class ProductController extends Controller
      */
     public function destroy(Product $product): JsonResponse 
     {
-        // dd('test-destroy');
         if (!Auth::check()) {
             return response()->json([
                 'message' => 'For administrators only!'

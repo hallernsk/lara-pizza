@@ -83,7 +83,6 @@ class AuthController extends Controller
      */
     public function me(): JsonResponse
     {
-        // dd('test-me');
         return response()->json(Auth::user());
     }
 
