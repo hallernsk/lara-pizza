@@ -15,10 +15,10 @@ class OrderControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $user;
-    protected $token;
-    protected $cart;
-    protected $products;
+    protected User $user;
+    protected string $token;
+    protected Cart $cart;
+    protected Product $products;
 
     protected function setUp(): void
     {
