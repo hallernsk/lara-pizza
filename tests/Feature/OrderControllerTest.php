@@ -108,4 +108,27 @@ class OrderControllerTest extends TestCase
             ->assertJson(['message' => 'Заказ успешно создан!']);
     }
 
+    public function test_order_creation_without_phone()
+    {
+        $requestData = [
+            'email' => 'test@example.com',
+            'address' => 'Test Address',
+            'delivery_time' => now()->addDay()->toDateTimeString()
+        ];
+        $response = $this->withToken($this->token)->postJson('/api/orders', $requestData);
+    
+        $response->assertJsonValidationErrors(['phone']);
+    }
+
+    public function test_order_creation_without_email()
+    {
+        $requestData = [
+            'phone' => '1234567890',
+            'address' => 'Test Address',
+            'delivery_time' => now()->addDay()->toDateTimeString()
+        ];
+        $response = $this->withToken($this->token)->postJson('/api/orders', $requestData);
+    
+        $response->assertJsonValidationErrors(['email']);
+    }
 }
