@@ -104,7 +104,7 @@ class OrderControllerTest extends TestCase
             'Authorization' => 'Bearer ' . $this->token,
         ])->postJson('/api/orders', $requestData);
 
-        $response->assertStatus(200)
+        $response->assertStatus(201)
             ->assertJson(['message' => 'Заказ успешно создан!']);
     }
 
