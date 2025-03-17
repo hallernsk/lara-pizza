@@ -47,7 +47,7 @@ class CartController extends Controller
 
         try {
             $this->cartService->addProductToCart($productId, $quantity);
-            return response()->json(['message' => 'Товар добавлен в корзину!!!'], 200);
+            return response()->json(['message' => 'Товар добавлен в корзину'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);
         } 
@@ -80,9 +80,8 @@ class CartController extends Controller
         $quantity = $request->input('quantity');
 
         try {
-            // dd('test-update');  
             $this->cartService->updateProductQuantity($productId, $quantity);
-            return response()->json(['message' => 'Количество товара обновлено!!!'], 200);
+            return response()->json(['message' => 'Количество товара обновлено'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);
         }    
