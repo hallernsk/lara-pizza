@@ -55,4 +55,49 @@ class CartService
 
         return $cart;
     }
+
+    public function updateProductQuantity($productId, $quantity)
+    {
+        // Получаем корзину текущего пользователя
+        $cart = Cart::where('user_id', Auth::id())->first();
+
+        if (!$cart) {
+            throw new \Exception('Корзина не найдена.');
+        }
+
+        // Находим продукт или выбрасываем исключение, если он не найден
+        $product = Product::findOrFail($productId);
+
+        // Проверяем лимиты
+        $pizzaCount = 0;
+        $drinkCount = 0;
+
+        foreach ($cart->items as $item) {
+            if ($item->product->type === 'pizza') {
+                $pizzaCount += ($item->product_id == $productId) ? $quantity : $item->quantity;
+            } else {
+                $drinkCount += ($item->product_id == $productId) ? $quantity : $item->quantity;
+            }
+        }
+
+        if ($product->type === 'pizza' && $pizzaCount > 10) {
+            throw new \Exception('Нельзя добавить больше 10 пицц.');
+        }
+
+        if ($product->type === 'drink' && $drinkCount > 20) {
+            throw new \Exception('Нельзя добавить больше 20 напитков.');
+        }
+
+        // Обновляем количество товара в корзине
+        $cartItem = $cart->items()->where('product_id', $productId)->first();
+
+        if (!$cartItem) {
+            throw new \Exception('Товар не найден в корзине.');
+        }
+
+        $cartItem->update(['quantity' => $quantity]);
+
+        return $cart;
+    }
+
 }
