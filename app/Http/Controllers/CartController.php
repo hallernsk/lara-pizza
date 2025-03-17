@@ -8,10 +8,17 @@ use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Http\Requests\AddProductToCartRequest;
+use App\Services\CartService;
 
 class CartController extends Controller
 {
+    protected $cartService;
+
+    public function __construct(CartService $cartService)
+    {
+        $this->cartService = $cartService;
+    }
     /**
      * Display the cart.
      */
@@ -33,13 +40,8 @@ class CartController extends Controller
     /**
      * Add a product to the cart.
      */
-    public function add(Request $request): JsonResponse
+    public function add(AddProductToCartRequest $request): JsonResponse
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'nullable|integer|min:1|max:100', 
-        ]);
-
         $productId = $request->input('product_id');
         $quantity = $request->input('quantity', 1); // Количество по умолчанию = 1
         $product = Product::findOrFail($productId);
