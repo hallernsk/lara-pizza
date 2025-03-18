@@ -15,12 +15,12 @@ class OrderControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $user;
-    protected $user2;
-    protected $token;
-    protected $token2;
-    protected $cart;
-    protected $products;
+    protected User $user;
+    protected User $user2;
+    protected string $token;
+    protected string $token2;
+    protected Cart $cart;
+    protected Collection $products;
 
     protected function setUp(): void
     {
@@ -44,7 +44,7 @@ class OrderControllerTest extends TestCase
         }
     }
 
-    public function test_user_can_get_their_orders()
+    public function test_user_can_get_their_orders(): void
     {
         Order::factory()->count(3)->create(['user_id' => $this->user->id]);
 
@@ -64,7 +64,7 @@ class OrderControllerTest extends TestCase
             ]);
     }
  
-    public function test_user_can_get_their_one_order()
+    public function test_user_can_get_their_one_order(): void
     {
         $order = Order::factory()->create(['user_id' => $this->user->id]);
 
@@ -79,7 +79,7 @@ class OrderControllerTest extends TestCase
             ]);
     }
 
-    public function test_user_cannot_get_non_their_one_order()
+    public function test_user_cannot_get_non_their_one_order(): void
     {
         $order = Order::factory()->create(['user_id' => $this->user2->id]);
 
@@ -91,7 +91,7 @@ class OrderControllerTest extends TestCase
         $response->assertStatus(403);    
     }
 
-    public function test_user_can_create_order_from_cart()
+    public function test_user_can_create_order_from_cart(): void
     {
         $requestData = [
             'phone' => '1234567890',
@@ -108,7 +108,7 @@ class OrderControllerTest extends TestCase
             ->assertJson(['message' => 'Заказ успешно создан!']);
     }
 
-    public function test_order_creation_without_phone()
+    public function test_order_creation_without_phone(): void
     {
         $requestData = [
             'email' => 'test@example.com',
@@ -120,7 +120,7 @@ class OrderControllerTest extends TestCase
         $response->assertJsonValidationErrors(['phone']);
     }
 
-    public function test_order_creation_without_email()
+    public function test_order_creation_without_email(): void
     {
         $requestData = [
             'phone' => '1234567890',
