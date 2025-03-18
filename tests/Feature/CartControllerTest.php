@@ -50,7 +50,7 @@ class CartControllerTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-            ->assertJson(['message' => 'Товар добавлен в корзину!']);
+            ->assertJson(['message' => 'Товар добавлен в корзину']);
     }
 
     public function test_user_can_remove_product_from_cart()
