@@ -32,9 +32,9 @@ class ProductControllerTest extends TestCase
         $this->userToken = JWTAuth::fromUser($this->user);
     }
 
-    public function test_guest_can_get_product_list(): void  // Гость
+    public function test_guest_can_get_product_list(): void  
     {
-        $response = $this->getJson('/api/products'); // Или '/api'
+        $response = $this->getJson('/api/products'); 
 
         $response->assertStatus(200);  
     }
