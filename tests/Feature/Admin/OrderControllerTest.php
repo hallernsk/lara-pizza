@@ -6,6 +6,8 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Collection;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -13,11 +15,11 @@ class OrderControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $admin;
-    protected $adminToken;
-    protected $user;
-    protected $userToken;
-    protected $orders;
+    protected User $admin;
+    protected string $adminToken;
+    protected User $user;
+    protected string $userToken;
+    protected Collection $orders;
 
     protected function setUp(): void
     {
@@ -44,7 +46,7 @@ class OrderControllerTest extends TestCase
             });
     }
 
-    public function test_admin_can_get_all_orders()
+    public function test_admin_can_get_all_orders(): void
     {
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->adminToken,
@@ -54,7 +56,7 @@ class OrderControllerTest extends TestCase
             ->assertJsonCount(3);   // ответ содержит 3 заказа (столько мы создали)
     }
 
-    public function test_non_admin_cannot_get_all_orders()
+    public function test_non_admin_cannot_get_all_orders(): void
     {
         $response = $this->withHeaders([
             'Authorization' => 'Bearer ' . $this->userToken,
@@ -63,7 +65,7 @@ class OrderControllerTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_admin_can_get_one_order()
+    public function test_admin_can_get_one_order(): void
     {
         $order = $this->orders->first();
 
@@ -78,7 +80,7 @@ class OrderControllerTest extends TestCase
             ]);
     }
 
-    public function test_admin_can_update_order_status()
+    public function test_admin_can_update_order_status(): void
     {
         $order = $this->orders->first();
         $newStatus = 'processing';
@@ -99,7 +101,7 @@ class OrderControllerTest extends TestCase
             ]);    
     }
 
-    public function test_non_admin_cannot_update_order_status()
+    public function test_non_admin_cannot_update_order_status(): void
     {
         $order = $this->orders->first();
 
