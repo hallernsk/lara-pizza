@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CartService
 {
-    public function addProductToCart($productId, $quantity)
+    public function addProductToCart($productId, $quantity): Cart
     {
         // Получаем или создаем корзину для текущего пользователя
         $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
@@ -33,11 +33,11 @@ class CartService
         }
 
         if ($product->type === 'pizza' && ($pizzaCount + $quantity) > 10) {
-            throw new \Exception('Нельзя добавить больше 10 пицц!!!!!');
+            throw new \Exception('Нельзя добавить больше 10 пицц!');
         }
 
         if ($product->type === 'drink' && ($drinkCount + $quantity) > 20) {
-            throw new \Exception('Нельзя добавить больше 20 напитков!!!!!');
+            throw new \Exception('Нельзя добавить больше 20 напитков!');
         }
 
         // Если товар уже есть, увеличиваем количество
@@ -56,7 +56,7 @@ class CartService
         return $cart;
     }
 
-    public function updateProductQuantity($productId, $quantity)
+    public function updateProductQuantity($productId, $quantity): Cart
     {
         // Получаем корзину текущего пользователя
         $cart = Cart::where('user_id', Auth::id())->first();
